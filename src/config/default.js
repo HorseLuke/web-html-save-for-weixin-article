@@ -1,4 +1,7 @@
 module.exports = {
-    firstName : "Jane",
-    lastName: "Doe",
-}
+    playwrightChromiumLaunchDefault : {
+        executablePath: "",
+        headless: false,
+        devtools: true
+    }
+};
