@@ -5,11 +5,11 @@
 const singletonEnforcer = Symbol();
 
 /**
- * @var Bootstarp
+ * @var BootstarpService
  */
 let _instance = null;
 
-class Bootstarp{
+class BootstarpService{
 
     constructor(enforcer){
         if (enforcer !== singletonEnforcer) {
@@ -19,18 +19,18 @@ class Bootstarp{
     }
 
     /**
-     * @return _instance {Bootstarp} - Bootstarp单例
+     * @return _instance {BootstarpService} - BootstarpService
      */
     static get instance(){
         if(!_instance){
-            _instance = new Bootstarp(singletonEnforcer);
+            _instance = new BootstarpService(singletonEnforcer);
         }
 
         return _instance;
     }
 
     _init(){
-        this.appdir = "1";
+        this.appdir = "";
     }
 
     setAppdir(dir){
@@ -41,6 +41,14 @@ class Bootstarp{
         return this.appdir;
     }
 
+    ESMImportFromAppdir(filepath){
+        return import("file://" + this.appdir + "/" + filepath);
+    }
+
+    CJSRequireFromAppdir(filepath){
+        return require(this.appdir + "/" + filepath);
+    }
+
 }
 
-export default Bootstarp;
+export default BootstarpService;
