@@ -1,6 +1,10 @@
 import config from "config";
+import merge from "merge";
 import * as playwright from "playwright-core";
 
+/**
+ * Playwright保存Browser实体，以方便后续进行主动关闭调用
+ */
 class BrowserContainerService{
 
     static async createInstanceByConfigName(browserType, configName){
@@ -22,6 +26,27 @@ class BrowserContainerService{
 
     getBrowser(){
         return this.browser;
+    }
+
+    async createNewContextAndPage(url, configNew){
+        let config = {
+            locale: "zh-CN",
+            timezoneId: "Asia/Shanghai",
+        };
+
+        if(configNew){
+            config = merge(config, configNew);
+        }
+
+        const context = await this.browser.newContext(config);
+
+        const page = await context.newPage();
+        if(url){
+            await page.goto(url);
+        }
+
+        return page;
+
     }
 
     setCloseHandler(closeHandler){
