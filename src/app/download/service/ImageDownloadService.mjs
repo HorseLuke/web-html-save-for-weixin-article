@@ -37,7 +37,8 @@ class ImageDownloadService{
 
             var internalDownloadImageRun = async (i, urlForInternal, optionsForInternal) => {
                 let singleResult = await this.downloadImage(urlForInternal, optionsForInternal);
-                returnResult.push([i, urlForInternal, optionsForInternal, singleResult]);
+                //returnResult.push([i, urlForInternal, optionsForInternal, singleResult]);
+                returnResult.push(singleResult);
                 processed++;
                 if(processed == totalCount){
                     resolve(returnResult);
