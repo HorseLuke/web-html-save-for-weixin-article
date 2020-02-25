@@ -22,6 +22,7 @@ class FetchService{
         const articleMeta = {
             id: "1900-00-00-test0000",
             url: url,
+            title: "",
             save_timestamp: 0,
             save_date: "1900-00-00",
             save_time: "00:00:00",
@@ -103,6 +104,7 @@ class FetchService{
             //console.log(imageListDownloaded);
 
             const HTMLData = await htmlEvaluateResult[2].jsonValue();
+            articleMeta.title = HTMLData.title;
 
             await page.goto("about:blank");
 
@@ -136,27 +138,7 @@ class FetchService{
             }while(false);
 
             
-            const writeResult = await (async(filepath, bufferData)=>{
-                return new Promise((resolve, reject) => {
-                    fs.writeFile(filepath, bufferData, (err) => {
-                        if (err){
-                            resolve({
-                                success: false,
-                                exception: err,
-                            });
-                            return ;
-                        }
-
-                        resolve({
-                            success: true,
-                            exception: err,
-                        });
-
-                        return ;
-
-                    });
-                });
-            })(articleMeta.save_dir + "/index-with-pics.html", finalHTMLResource);
+            const writeResult = await this._writeData(articleMeta.save_dir + "/index-with-pics.html", finalHTMLResource);
 
             const finalHTMLResource2 = await page.evaluate(() => {
                 window.FetchServiceBlankPageEvaluateHandleHelper.replaceAllImgToFilename();
@@ -164,29 +146,16 @@ class FetchService{
             });
             
             
-            const writeResult2 = await (async(filepath, bufferData)=>{
-                return new Promise((resolve, reject) => {
-                    fs.writeFile(filepath, bufferData, (err) => {
-                        if (err){
-                            resolve({
-                                success: false,
-                                exception: err,
-                            });
-                            return ;
-                        }
-
-                        resolve({
-                            success: true,
-                            exception: err,
-                        });
-
-                        return ;
-
-                    });
-                });
-            })(articleMeta.save_dir + "/index-without-pics.html", finalHTMLResource2);
+            const writeResultNoImgHTML = await this._writeData(articleMeta.save_dir + "/index-without-pics.html", finalHTMLResource2);
 
             articleMeta.succcess = true;
+
+            const articleMetaWrite = JSON.parse(JSON.stringify(articleMeta));
+            delete articleMetaWrite.save_dir;
+
+            const writeResultMeta = await this._writeData(articleMeta.save_dir + "/metadata.js", JSON.stringify(articleMetaWrite));
+
+
 
     
         }catch(e){
@@ -201,6 +170,29 @@ class FetchService{
         await browserContainerInstance.close();
 
         return articleMeta;
+
+    }
+
+    _writeData(filepath, bufferData){
+        return new Promise((resolve, reject) => {
+            fs.writeFile(filepath, bufferData, (err) => {
+                if (err){
+                    resolve({
+                        success: false,
+                        exception: err,
+                    });
+                    return ;
+                }
+
+                resolve({
+                    success: true,
+                    exception: err,
+                });
+
+                return ;
+
+            });
+        });
 
     }
 
