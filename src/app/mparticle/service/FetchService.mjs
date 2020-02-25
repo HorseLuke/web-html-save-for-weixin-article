@@ -26,6 +26,7 @@ class FetchService{
             save_date: "1900-00-00",
             save_timecode: "000000",
             save_dir: "",
+            success: false,
         };
 
         articleMeta.save_timestamp = parseInt(currentTime.getTime() / 1000);
@@ -66,6 +67,16 @@ class FetchService{
                 content: String(readFileSync(global.BootstarpInstance.getAppdir() + "/browser/script/mparticle/FetchServiceMpArticleEvaluateHandleHelper.js")),
             });
 
+            const detectInfo = await page.evaluate(() => {
+                return window.FetchServiceMpArticleEvaluateHandleHelper.detectArticleStatus();
+            });
+            
+            if(detectInfo != 0){
+                await browserContainerInstance.close();
+                return articleMeta;
+            }
+    
+
             const navigatorJSHandlePromise = page.evaluateHandle(() => {
                 return window.FetchServiceMpArticleEvaluateHandleHelper.getUserAgent();
             });
@@ -102,7 +113,7 @@ class FetchService{
         //await page.screenshot({path: 'screenshot.png'});
         await browserContainerInstance.close();
 
-        return 0;
+        return articleMeta;
 
     }
 

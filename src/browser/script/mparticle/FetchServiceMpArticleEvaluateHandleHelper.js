@@ -2,6 +2,15 @@
 
     let helper = {};
 
+    helper.detectArticleStatus = function(){
+        try{
+            document.querySelector(".rich_media_title").innerText;
+            return 0;
+        }catch(e){
+            return -1;
+        }
+    };
+
     helper.getUserAgent = function(){
         return {
             userAgent: navigator.userAgent
