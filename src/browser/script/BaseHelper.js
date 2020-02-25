@@ -41,6 +41,13 @@
         return pwd;
     };
 
+
+    helper.createSafeText = function(text){
+        var a = document.createElement("span");
+        a.innerText = text;
+        return a.innerHTML;
+    };
+
     window[name] = helper;
 
 })("xHelperFunctionInBrowserContext");

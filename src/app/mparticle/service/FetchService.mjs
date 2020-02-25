@@ -1,7 +1,9 @@
+import {readFileSync} from "fs";
+import randomstring from "randomstring";
 import BrowserContainerService from "../../playwright/service/BrowserContainerService.mjs";
 import {checkUrlIsInHostList} from "../../base/helper/UrlHelper.mjs";
-import randomstring from "randomstring";
-import {readFileSync} from "fs";
+
+
 
 class FetchService{
 
@@ -14,13 +16,22 @@ class FetchService{
             throw new Error("NOT mp.weixin.qq.com");
         }
 
+        const currentTime = new Date();
 
         const articleMeta = {
+            id: "",
             url: url,
-            save_time: parseInt(new Date().getTime() / 1000)
+            save_timestamp: 0,
+            save_date: "1900-00-00"
         };
 
-        articleMeta.id = articleMeta.save_time + randomstring.generate(16);
+        articleMeta.save_timestamp = parseInt(currentTime.getTime() / 1000);
+        articleMeta.save_date = [
+            currentTime.getFullYear(),
+            ('0'+ (currentTime.getMonth() + 1)).slice(-2),
+            ('0'+ currentTime.getDate()).slice(-2)
+        ].join("-");
+        articleMeta.id = articleMeta.save_date + "-" + randomstring.generate(16);
 
         //初始化browser
         const browserContainerInstance = await BrowserContainerService.createInstanceByConfigName("chromium", "playwrightChromiumLaunchDefault");
@@ -97,7 +108,7 @@ class FetchService{
 
             });
 
-            console.log(await pageHTMLJSHandler.jsonValue());
+            //console.log(await pageHTMLJSHandler.jsonValue());
 
     
         }catch(e){
@@ -114,30 +125,6 @@ class FetchService{
         return 0;
 
     }
-
-    async downloadImagelist(imglist, options){
-
-        var result = [];
-
-        try{
-
-
-        }catch(e){
-            return result;
-        }
-
-    }
-
-
-    async downloadImage(src, options){
-        const result = {
-            "ori-src": src,
-            "new-src": "",
-            "id": options.resid ? options.resid : ""
-        };
-    }
-
-
 
 }
 
