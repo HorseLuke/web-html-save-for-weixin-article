@@ -61,7 +61,22 @@ class ImageDownloadService{
 
     }
 
-
+    /**
+     * 批量下载图片
+     * @param url String
+     * @param defaultOptions Object {
+                headers: {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36"
+                },
+                timeout: 30000,
+                save: {
+                    name: "",
+                    dir_path: saveDefault.dir_path,
+                    url_prefix: saveDefault.url_prefix,
+                }
+     * }
+     * @return Promise 
+     */
     async downloadImage(url, options){
         const result = {
             "url": url,
