@@ -63,7 +63,7 @@ class ImageDownloadService{
     }
 
     /**
-     * 批量下载图片
+     * 下载一张图片
      * @param url String
      * @param defaultOptions Object {
                 headers: {
