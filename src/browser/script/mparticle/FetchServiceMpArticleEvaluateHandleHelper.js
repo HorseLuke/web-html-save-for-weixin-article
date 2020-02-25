@@ -60,6 +60,43 @@
         };
     };
 
+    helper.scrollFullPage = function(){
+
+        return new Promise((resolve, reject) =>{
+
+            let current = 0;
+            let step = 150;
+
+            let scrollFunc = function(){
+
+                console.log("scrolling");
+
+                current = current + step;
+
+                try{
+                    window.scrollTo(0, current);
+                }catch(e){
+                    console.error(e);
+                }
+                
+                if(current >= document.body.scrollHeight){
+                    console.log("scroll Finish");
+                    window.scrollTo(0, 0);
+                    resolve(document.body.scrollHeight);
+                    return ;
+                }
+
+                console.log("scrolling requestAnimationFrame");
+
+                requestAnimationFrame(scrollFunc);
+            };
+
+            scrollFunc();
+
+        });
+        
+    };
+
     window[name] = helper;
 
 })("FetchServiceMpArticleEvaluateHandleHelper");

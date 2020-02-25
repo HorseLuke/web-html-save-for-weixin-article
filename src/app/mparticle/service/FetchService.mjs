@@ -53,7 +53,14 @@ class FetchService{
         //主流程
         try{
             const page = await browserContainerInstance.createNewContextAndPage(url, {
-                bypassCSP: true
+                bypassCSP: true,
+                userAgent: "Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3765.0 Mobile Safari/537.36",
+                viewport: {
+                    'width': 731,
+                    'height': 411,
+                    'deviceScaleFactor': 2.625,
+                    'isMobile': true              
+                }
             });
 
             page.on("domcontentloaded", async () => {
@@ -89,7 +96,7 @@ class FetchService{
                 return window.FetchServiceMpArticleEvaluateHandleHelper.getMpImgList();
             });
 
-            const pageHTMLJSHandlePromise = await page.evaluateHandle(() => {
+            const pageHTMLJSHandlePromise = page.evaluateHandle(() => {
                 return window.FetchServiceMpArticleEvaluateHandleHelper.getMainHTML();
             });
             
@@ -99,12 +106,36 @@ class FetchService{
                 pageHTMLJSHandlePromise
             ]);
 
-            const imageListDownloaded = await this._downloadImageFromEvaluateResult(articleMeta, htmlEvaluateResult[0], htmlEvaluateResult[1]);
+
+            const imageListDownloadedPromise = this._downloadImageFromEvaluateResult(articleMeta, htmlEvaluateResult[0], htmlEvaluateResult[1]);
+
+            /*
+            const scrollEvaluateHandlePromise = page.evaluateHandle(() => {
+                return window.FetchServiceMpArticleEvaluateHandleHelper.scrollFullPage();
+            });
+            */
+
+            const parallResultForImage = await Promise.allSettled([
+                imageListDownloadedPromise,
+                //scrollEvaluateHandlePromise
+            ]);
+
+            const imageListDownloaded = parallResultForImage[0];
 
             //console.log(imageListDownloaded);
 
             const HTMLData = await htmlEvaluateResult[2].jsonValue();
             articleMeta.title = HTMLData.title;
+
+            /*
+            await page.screenshot({
+                fullPage: true,
+                type: "jpeg",
+                quality: 70,
+                omitBackground: false,
+                path: articleMeta.save_dir + '/screenshot-full.jpeg'
+            });
+            */
 
             await page.goto("about:blank");
 
@@ -148,7 +179,7 @@ class FetchService{
             
             const writeResultNoImgHTML = await this._writeData(articleMeta.save_dir + "/index-without-pics.html", finalHTMLResource2);
 
-            articleMeta.succcess = true;
+            articleMeta.success = true;
 
             const articleMetaWrite = JSON.parse(JSON.stringify(articleMeta));
             delete articleMetaWrite.save_dir;
@@ -165,7 +196,8 @@ class FetchService{
         }
 
         //关闭浏览器
-        await new Promise(resolve => setTimeout(resolve, 100000000));    //暂停5秒
+        const closeBrowserTimeout = 1000;
+        await new Promise(resolve => setTimeout(resolve, closeBrowserTimeout));    //暂停closeBrowserTimeout毫秒
         //await page.screenshot({path: 'screenshot.png'});
         await browserContainerInstance.close();
 
