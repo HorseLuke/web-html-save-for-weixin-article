@@ -53,4 +53,4 @@
 
     window[name] = helper;
 
-})("FetchServiceEvaluateHandleHelper");
+})("FetchServiceMpArticleEvaluateHandleHelper");
