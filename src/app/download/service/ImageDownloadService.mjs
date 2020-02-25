@@ -11,16 +11,53 @@ class ImageDownloadService{
         this.allowImgExt = ["jpg", "jpeg", "png", "gif", "webp"];
     }
     
-    async downloadImagelist(imglist, options){
+    /**
+     * 批量下载图片
+     * @param list Array [
+     *     {url: "xxx", options: {}}
+     * ]
+     * @param defaultOptions Object
+     * @return Promise 
+     */
+    downloadImagelist(imglist, defaultOptions){
 
-        var result = [];
+        //其实可以使用Promise.allSettled。但此处暂不使用，主要研究并发处理。
 
-        try{
+        return new Promise((resolve, reject) => {
+            
+            var returnResult = [];
+            
+            if(imglist.length < 1){
+                resolve(returnResult);
+                return ;
+            }
 
+            let processed = 0;
+            const totalCount = imglist.length;
 
-        }catch(e){
-            return result;
-        }
+            var internalDownloadImageRun = async (i, urlForInternal, optionsForInternal) => {
+                let singleResult = await this.downloadImage(urlForInternal, optionsForInternal);
+                returnResult.push([i, urlForInternal, optionsForInternal, singleResult]);
+                processed++;
+                if(processed == totalCount){
+                    resolve(returnResult);
+                }
+            };
+
+            for(let i = 0 ; i < imglist.length; i++){
+                let imgRow = imglist[i];
+                let optionNew = {};
+                if(imgRow.hasOwnProperty("options") && imgRow.options){
+                    if(defaultOptions){
+                        optionNew = merge.recursive(true, defaultOptions, imgRow.options);
+                    }else{
+                        optionNew = imgRow.options;
+                    }
+                }
+                internalDownloadImageRun(i, imgRow.url, optionNew);
+            }
+
+        });
 
     }
 
@@ -46,6 +83,7 @@ class ImageDownloadService{
                 headers: {
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36"
                 },
+                timeout: 30000,
                 save: {
                     name: "",
                     dir_path: saveDefault.dir_path,
