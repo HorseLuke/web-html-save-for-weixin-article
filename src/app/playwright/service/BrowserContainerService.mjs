@@ -35,7 +35,7 @@ class BrowserContainerService{
         };
 
         if(configNew){
-            config = merge(config, configNew);
+            config = merge.recursive(true, config, configNew);
         }
 
         const context = await this.browser.newContext(config);
