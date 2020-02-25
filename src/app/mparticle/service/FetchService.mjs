@@ -1,4 +1,4 @@
-import {readFileSync} from "fs";
+import fs from "fs";
 import randomstring from "randomstring";
 import config from "config";
 import BrowserContainerService from "../../playwright/service/BrowserContainerService.mjs";
@@ -24,6 +24,7 @@ class FetchService{
             url: url,
             save_timestamp: 0,
             save_date: "1900-00-00",
+            save_time: "00:00:00",
             save_timecode: "000000",
             save_dir: "",
             success: false,
@@ -35,11 +36,13 @@ class FetchService{
             ('0'+ (currentTime.getMonth() + 1)).slice(-2),
             ('0'+ currentTime.getDate()).slice(-2)
         ].join("-");
-        articleMeta.save_timecode = [
+        articleMeta.save_time = [
             ('0'+ currentTime.getHours()).slice(-2),
             ('0'+ currentTime.getMinutes()).slice(-2),
             ('0'+ currentTime.getSeconds()).slice(-2)
-        ].join("");
+        ].join(":");
+        articleMeta.save_timecode = articleMeta.save_time.replace(/:/g, '');
+        
         articleMeta.id = randomstring.generate(32);
         articleMeta.save_dir = config.get("mpArticleSave.dir_path") + "/" + articleMeta.save_date + "/" + articleMeta.save_timecode + "_" +  articleMeta.id;
 
@@ -60,11 +63,11 @@ class FetchService{
             const bodyHandle = await page.$wait("body");
 
             await page.addScriptTag({
-                content: String(readFileSync(global.BootstarpInstance.getAppdir() + "/browser/script/base/BaseHelper.js")),
+                content: String(fs.readFileSync(global.BootstarpInstance.getAppdir() + "/browser/script/base/BaseHelper.js")),
             });
 
             await page.addScriptTag({
-                content: String(readFileSync(global.BootstarpInstance.getAppdir() + "/browser/script/mparticle/FetchServiceMpArticleEvaluateHandleHelper.js")),
+                content: String(fs.readFileSync(global.BootstarpInstance.getAppdir() + "/browser/script/mparticle/FetchServiceMpArticleEvaluateHandleHelper.js")),
             });
 
             const detectInfo = await page.evaluate(() => {
@@ -97,19 +100,103 @@ class FetchService{
 
             const imageListDownloaded = await this._downloadImageFromEvaluateResult(articleMeta, htmlEvaluateResult[0], htmlEvaluateResult[1]);
 
-            console.log(imageListDownloaded);
+            //console.log(imageListDownloaded);
 
-            //await page.goto("file://" + global.BootstarpInstance.getAppdir() + "/browser/html/MpArticleBlank.html");
+            const HTMLData = await htmlEvaluateResult[2].jsonValue();
+
+            await page.goto("about:blank");
+
+            await page.addScriptTag({
+                content: String(fs.readFileSync(global.BootstarpInstance.getAppdir() + "/browser/script/base/BaseHelper.js")),
+            });
+
+            await page.addScriptTag({
+                content: String(fs.readFileSync(global.BootstarpInstance.getAppdir() + "/browser/script/mparticle/FetchServiceBlankPageEvaluateHandleHelper.js")),
+            });
+
+            const blankPrepare = await page.evaluate(() => {
+                window.FetchServiceBlankPageEvaluateHandleHelper.clearScripts();
+                return window.FetchServiceBlankPageEvaluateHandleHelper.fixHTMLHead();
+            });
+
+            const finalHTMLResource = await page.evaluate((articleMeta, imageListDownloaded, HTMLData) => {
+                window.FetchServiceBlankPageEvaluateHandleHelper.addHTML(articleMeta, imageListDownloaded, HTMLData);
+                return window.FetchServiceBlankPageEvaluateHandleHelper.getWholeHTML();
+            }, articleMeta, imageListDownloaded, HTMLData);
+            
+            do{
+                if(fs.existsSync(articleMeta.save_dir)){
+                    break;
+                }
+
+                fs.mkdirSync(articleMeta.save_dir, {
+                    recursive: true
+                });
+
+            }while(false);
+
+            
+            const writeResult = await (async(filepath, bufferData)=>{
+                return new Promise((resolve, reject) => {
+                    fs.writeFile(filepath, bufferData, (err) => {
+                        if (err){
+                            resolve({
+                                success: false,
+                                exception: err,
+                            });
+                            return ;
+                        }
+
+                        resolve({
+                            success: true,
+                            exception: err,
+                        });
+
+                        return ;
+
+                    });
+                });
+            })(articleMeta.save_dir + "/index-with-pics.html", finalHTMLResource);
+
+            const finalHTMLResource2 = await page.evaluate(() => {
+                window.FetchServiceBlankPageEvaluateHandleHelper.replaceAllImgToFilename();
+                return window.FetchServiceBlankPageEvaluateHandleHelper.getWholeHTML();
+            });
+            
+            
+            const writeResult2 = await (async(filepath, bufferData)=>{
+                return new Promise((resolve, reject) => {
+                    fs.writeFile(filepath, bufferData, (err) => {
+                        if (err){
+                            resolve({
+                                success: false,
+                                exception: err,
+                            });
+                            return ;
+                        }
+
+                        resolve({
+                            success: true,
+                            exception: err,
+                        });
+
+                        return ;
+
+                    });
+                });
+            })(articleMeta.save_dir + "/index-without-pics.html", finalHTMLResource2);
+
+            articleMeta.succcess = true;
 
     
         }catch(e){
             //throw之前，强制关闭浏览器
-            browserContainerInstance.close();
+            //browserContainerInstance.close();
             throw e;
         }
 
         //关闭浏览器
-        await new Promise(resolve => setTimeout(resolve, 100000));    //暂停5秒
+        await new Promise(resolve => setTimeout(resolve, 100000000));    //暂停5秒
         //await page.screenshot({path: 'screenshot.png'});
         await browserContainerInstance.close();
 
