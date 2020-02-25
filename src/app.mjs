@@ -5,6 +5,9 @@ import util from 'util';
 import Bootstarp from "./app/base/service/BootstarpService.mjs";
 
 //全局注册唯一启动模块
+/**
+ * @var Bootstarp
+ */
 global.BootstarpInstance = Bootstarp.instance;
 
 console.log("process.env.NODE_ENV is " + process.env.NODE_ENV);
@@ -31,8 +34,18 @@ moduleAlias.addAliases({
 //初始化应用
 (async () => {
     const config = await import("config");
-    const PlaywrightFetchService = await global.BootstarpInstance.ESMImportFromAppdir("app/mparticle/service/PlaywrightFetchService.mjs");
-    const PlaywrightFetchServiceInstance = new PlaywrightFetchService.default();
-    await PlaywrightFetchServiceInstance.fetch("https://mp.weixin.qq.com/s/_YytdfU10FUvq65NDr_OqQ");
+
+    /*
+    const testCtrl = await global.BootstarpInstance.ESMImportFromAppdir("app/mparticle/testcontroller/FetchOneArticleTestController.mjs");
+    const testCtrlInstance = new testCtrl.default();
+    const result = await testCtrlInstance.testWithMultiPic();
+    */
+   const testCtrl = await global.BootstarpInstance.ESMImportFromAppdir("app/download/testcontroller/BatchImageDownloadTestController.mjs");
+   const testCtrlInstance = new testCtrl.default();
+   const result = await testCtrlInstance.testBatch();
+
+    console.log(result);
+
+
 })();
 
