@@ -152,6 +152,7 @@ class FetchService{
 
             console.log("imageListDownloadedPromise finish");
 
+            await this._writeImageDownloadResult(articleMeta, imageListDownloaded);
 
 
             const HTMLData = await htmlEvaluateResult[2].jsonValue();
@@ -214,6 +215,21 @@ class FetchService{
 
     }
 
+    async _writeImageDownloadResult(articleMeta, imageListDownloaded){
+        const result = [];
+        for(let i = 0; i < imageListDownloaded.length; i++){
+            let row = imageListDownloaded[i];
+            let resultSingle = [
+                row.success ? "下载成功" : "下载失败",
+                row.name,
+                row.filename ? row.filename : "[下载失败没有文件名]",
+                row.url,
+            ];
+            result.push(resultSingle.join("\t"));
+        }
+        await this._writeData(articleMeta.save_dir + "/image-download-result.txt", result.join("\r\n"));
+    }
+
     _writeData(filepath, bufferData){
         return new Promise((resolve, reject) => {
             fs.writeFile(filepath, bufferData, (err) => {
@@ -247,6 +263,7 @@ class FetchService{
                 Referer: articleMeta.url,
                 "user-agent": navigatorInfo.userAgent
             },
+            timeout: 10,
             save: {
                 dir_path: articleMeta.save_dir + "/images/",
                 url_prefix: "./images/",
