@@ -81,6 +81,10 @@
             if(imgSelected == null){
                 continue;
             }
+
+            if(imgSelected.hasAttribute("crossorigin")){
+                imgSelected.removeAttribute("crossorigin");
+            }
             
             if(row.success){
                 imgSelected.setAttribute("src", row.saveurl);
