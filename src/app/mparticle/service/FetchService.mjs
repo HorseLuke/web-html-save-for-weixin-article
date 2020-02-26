@@ -47,6 +47,17 @@ class FetchService{
         articleMeta.id = randomstring.generate(32);
         articleMeta.save_dir = config.get("mpArticleSave.dir_path") + "/" + articleMeta.save_date + "/" + articleMeta.save_timecode + "_" +  articleMeta.id;
 
+        do{
+            if(fs.existsSync(articleMeta.save_dir)){
+                break;
+            }
+
+            fs.mkdirSync(articleMeta.save_dir, {
+                recursive: true
+            });
+
+        }while(false);
+
         //初始化browser
         const browserContainerInstance = await BrowserContainerService.createInstanceByConfigName("chromium", "playwrightChromiumLaunchDefault");
 
@@ -54,11 +65,11 @@ class FetchService{
         try{
             const page = await browserContainerInstance.createNewContextAndPage(url, {
                 bypassCSP: true,
-                userAgent: "Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3765.0 Mobile Safari/537.36",
+                //userAgent: "Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3765.0 Mobile Safari/537.36",
                 viewport: {
                     'width': 731,
                     'height': 411,
-                    'deviceScaleFactor': 2.625,
+                    'deviceScaleFactor': 1,
                     'isMobile': true              
                 }
             });
@@ -69,6 +80,19 @@ class FetchService{
             });
 
             const bodyHandle = await page.$wait("body");
+            
+            /*
+            console.log("page.screenshot now");
+
+
+            await page.screenshot({
+                fullPage: true,
+                type: "jpeg",
+                quality: 90,
+                omitBackground: false,
+                path: articleMeta.save_dir + '/screenshot-full.jpeg'
+            });
+            */
 
             await page.addScriptTag({
                 content: String(fs.readFileSync(global.BootstarpInstance.getAppdir() + "/browser/script/base/BaseHelper.js")),
@@ -87,7 +111,6 @@ class FetchService{
                 return articleMeta;
             }
     
-
             const navigatorJSHandlePromise = page.evaluateHandle(() => {
                 return window.FetchServiceMpArticleEvaluateHandleHelper.getUserAgent();
             });
@@ -107,35 +130,32 @@ class FetchService{
             ]);
 
 
-            const imageListDownloadedPromise = this._downloadImageFromEvaluateResult(articleMeta, htmlEvaluateResult[0], htmlEvaluateResult[1]);
+            console.log("imageListDownloadedPromise now");
 
             /*
-            const scrollEvaluateHandlePromise = page.evaluateHandle(() => {
+            const imageListDownloadedPromise = this._downloadImageFromEvaluateResult(articleMeta, htmlEvaluateResult[0], htmlEvaluateResult[1]);
+
+            const scrollEvaluatePromise = page.evaluate(() => {
                 return window.FetchServiceMpArticleEvaluateHandleHelper.scrollFullPage();
             });
-            */
+
 
             const parallResultForImage = await Promise.allSettled([
                 imageListDownloadedPromise,
-                //scrollEvaluateHandlePromise
+                scrollEvaluatePromise
             ]);
 
             const imageListDownloaded = parallResultForImage[0];
+            */
 
-            //console.log(imageListDownloaded);
+            const imageListDownloaded = await this._downloadImageFromEvaluateResult(articleMeta, htmlEvaluateResult[0], htmlEvaluateResult[1]);
+
+            console.log("imageListDownloadedPromise finish");
+
+
 
             const HTMLData = await htmlEvaluateResult[2].jsonValue();
             articleMeta.title = HTMLData.title;
-
-            /*
-            await page.screenshot({
-                fullPage: true,
-                type: "jpeg",
-                quality: 70,
-                omitBackground: false,
-                path: articleMeta.save_dir + '/screenshot-full.jpeg'
-            });
-            */
 
             await page.goto("about:blank");
 
@@ -157,17 +177,6 @@ class FetchService{
                 return window.FetchServiceBlankPageEvaluateHandleHelper.getWholeHTML();
             }, articleMeta, imageListDownloaded, HTMLData);
             
-            do{
-                if(fs.existsSync(articleMeta.save_dir)){
-                    break;
-                }
-
-                fs.mkdirSync(articleMeta.save_dir, {
-                    recursive: true
-                });
-
-            }while(false);
-
             
             const writeResult = await this._writeData(articleMeta.save_dir + "/index-with-pics.html", finalHTMLResource);
 
@@ -266,6 +275,7 @@ class FetchService{
         const ImageDownloadServiceInstance = new ImageDownloadService();
 
         const result = await ImageDownloadServiceInstance.downloadImagelist(imageNeedDownload, imageDownloadDefaultOptions);
+
         return result;
 
     }

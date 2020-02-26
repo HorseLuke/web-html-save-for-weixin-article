@@ -65,7 +65,7 @@
         return new Promise((resolve, reject) =>{
 
             let current = 0;
-            let step = 150;
+            let step = parseInt(Math.random() * 10) + 90;
 
             let scrollFunc = function(){
 
@@ -82,7 +82,13 @@
                 if(current >= document.body.scrollHeight){
                     console.log("scroll Finish");
                     window.scrollTo(0, 0);
-                    resolve(document.body.scrollHeight);
+
+                    setTimeout(()=>{
+                        resolve({
+                            "scrollHeight": document.body.scrollHeight
+                        });
+                    }, 2000);
+                    
                     return ;
                 }
 
