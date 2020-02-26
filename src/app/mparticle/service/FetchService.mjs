@@ -206,7 +206,7 @@ class FetchService{
         }
 
         //关闭浏览器
-        const closeBrowserTimeout = 1000;
+        const closeBrowserTimeout = 10;
         await new Promise(resolve => setTimeout(resolve, closeBrowserTimeout));    //暂停closeBrowserTimeout毫秒
         //await page.screenshot({path: 'screenshot.png'});
         await browserContainerInstance.close();
@@ -263,7 +263,7 @@ class FetchService{
                 Referer: articleMeta.url,
                 "user-agent": navigatorInfo.userAgent
             },
-            timeout: 10,
+            timeout: 20000,
             save: {
                 dir_path: articleMeta.save_dir + "/images/",
                 url_prefix: "./images/",
