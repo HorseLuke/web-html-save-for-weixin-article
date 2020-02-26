@@ -48,6 +48,14 @@
         return a.innerHTML;
     };
 
+    helper.padNumber = function(num, size){
+        var s = num+"";
+        while (s.length < size){
+            s = "0" + s;
+        }
+        return s;
+    };
+
     window[name] = helper;
 
 })("xHelperFunctionInBrowserContext");

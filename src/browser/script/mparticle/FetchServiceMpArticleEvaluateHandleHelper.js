@@ -30,7 +30,7 @@
             if(window.xHelperFunctionInBrowserContext.checkUrlIsInHostList(src, ["mmbiz.qpic.cn"]) != 0){
                 continue;
             }
-            let randomstr = (i + 1) + "-" + window.xHelperFunctionInBrowserContext.generateRandomStr(16);
+            let randomstr = window.xHelperFunctionInBrowserContext.padNumber(i + 1, 3) + "-" + window.xHelperFunctionInBrowserContext.generateRandomStr(16);
             imgObj.setAttribute("data-x-replace-token", randomstr);
             imgObj.setAttribute("data-x-src-origin", src);
             imgObj.setAttribute("data-x-need-replace-download", 1);
