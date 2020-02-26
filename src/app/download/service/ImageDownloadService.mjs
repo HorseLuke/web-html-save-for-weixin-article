@@ -108,6 +108,7 @@ class ImageDownloadService{
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36"
                 },
                 timeout: 30000,
+                max_try_count: 3,
                 save: {
                     name: "",
                     dir_path: saveDefault.dir_path,
@@ -117,6 +118,7 @@ class ImageDownloadService{
      * @return Promise 
      */
     async downloadImage(url, options){
+
         const result = {
             "url": url,
             "success": false,
@@ -131,14 +133,7 @@ class ImageDownloadService{
 
         const timeoutSetting = options.timeout ? options.timeout : 30000;
 
-        const controller = new AbortController();
-        const timeoutSignal = setTimeout(
-          () => {
-              console.log("AbortController need abort");
-              controller.abort(); 
-          },
-          timeoutSetting
-        );
+        const maxTryCount = options.max_try_count ? options.max_try_count : 3;
 
         try{
 
@@ -183,17 +178,22 @@ class ImageDownloadService{
 
             }while(false);
 
-            console.log("downloading image: " + url);
+            const buffer = await this._downloadImageUsingFetch(
+                url,
+                {
+                    method: "get",
+                    headers: optionsRun.headers,
+                    follow: optionsRun.follow, 
+                    timeout: optionsRun.timeout,
+                },
+                maxTryCount
+            );
+
+            if(buffer == false){
+                result.error = "DOWNLOAD_ERROR";
+                return result;
+            }
             
-            const res = await fetch(url, {
-                method: "get",
-                headers: optionsRun.headers,
-                signal: controller.signal,
-                follow: optionsRun.follow, 
-                timeout: optionsRun.timeout,
-            });
-    
-            const buffer = await res.buffer();
             const imageTypeRes = imageTypeDetect(buffer);
 
             if(!imageTypeRes.hasOwnProperty("ext")){
@@ -261,12 +261,41 @@ class ImageDownloadService{
             result.exception = e;
             return result;
 
-        }finally{
-            console.log("clearTimeout: timeoutSignal");
-            clearTimeout(timeoutSignal);
         }
 
+    }
 
+    async _downloadImageUsingFetch(url, opts, maxTry){
+
+        maxTry = maxTry || 3;
+
+        let currentCount = 0;
+
+        while(currentCount < maxTry){
+
+            currentCount++;
+
+            if(currentCount > 1){
+                await new Promise(resolve => setTimeout(resolve, parseInt(Math.random() * 1000 + 1)));  
+            }
+
+            
+            console.log("downloading image TRY #" + currentCount + ": " + url);
+
+            try{
+                const res = await fetch(url, opts);
+                if(res.status != 200){
+                    continue;
+                }
+                const buffer = await res.buffer();
+                return buffer;
+            }catch(e){
+                console.error(e);
+            }
+            
+        };
+
+        return false;
 
     }
 
