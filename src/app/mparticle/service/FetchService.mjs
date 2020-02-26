@@ -17,6 +17,8 @@ class FetchService{
             throw new Error("NOT mp.weixin.qq.com");
         }
 
+        const mpArticleSaveRoot = config.get("mpArticleSave.dir_path");
+
         const currentTime = new Date();
 
         const articleMeta = {
@@ -45,7 +47,7 @@ class FetchService{
         articleMeta.save_timecode = articleMeta.save_time.replace(/:/g, '');
         
         articleMeta.id = randomstring.generate(32);
-        articleMeta.save_dir = config.get("mpArticleSave.dir_path") + "/" + articleMeta.save_date + "/" + articleMeta.save_timecode + "_" +  articleMeta.id;
+        articleMeta.save_dir = mpArticleSaveRoot + "/" + articleMeta.save_date + "/" + articleMeta.save_timecode + "_" +  articleMeta.id;
 
         do{
             if(fs.existsSync(articleMeta.save_dir)){
@@ -196,7 +198,14 @@ class FetchService{
 
             const writeResultMeta = await this._writeData(articleMeta.save_dir + "/metadata.js", JSON.stringify(articleMetaWrite));
 
-
+            fs.appendFileSync(
+                mpArticleSaveRoot + "/article-list-meta.txt",
+                [
+                    articleMeta.save_dir,
+                    articleMeta.url,
+                    articleMeta.title,
+                ].join("\t") + "\r\n"
+            );
 
     
         }catch(e){
