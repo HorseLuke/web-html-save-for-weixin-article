@@ -10,7 +10,44 @@ class ImageDownloadService{
     constructor(){
         this.allowImgExt = ["jpg", "jpeg", "png", "gif", "webp"];
     }
-    
+
+    /**
+     * 批量下载图片
+     * @param list Array [
+     *     {url: "xxx", options: {}}
+     * ]
+     * @param defaultOptions Object
+     * @param eachParallelChunk Int
+     * @return Promise 
+     */
+    async downloadImagelist(imglist, defaultOptions, eachParallelChunk){
+
+        eachParallelChunk = eachParallelChunk || 10;
+        eachParallelChunk = parseInt(eachParallelChunk);
+        if(isNaN(eachParallelChunk)){
+            eachParallelChunk = 10;
+        }
+
+        if(imglist.length <= eachParallelChunk){
+            return await this._downloadImagelistProcess(imglist, defaultOptions);
+        }
+
+        const result = [];
+
+        var i,j,temparray,chunk = eachParallelChunk;
+        for (i=0,j=imglist.length; i<j; i+=chunk) {
+            temparray = imglist.slice(i,i+chunk);
+            let chunkResult = await this._downloadImagelistProcess(temparray, defaultOptions);
+            for(let chri = 0; chri < chunkResult.length; chri++){
+                result.push(chunkResult[chri]);
+            }
+        }
+
+        return result;
+
+
+    }
+
     /**
      * 批量下载图片
      * @param list Array [
@@ -19,7 +56,7 @@ class ImageDownloadService{
      * @param defaultOptions Object
      * @return Promise 
      */
-    downloadImagelist(imglist, defaultOptions){
+    _downloadImagelistProcess(imglist, defaultOptions){
 
         //其实可以使用Promise.allSettled。但此处暂不使用，主要研究并发处理。
 
@@ -132,6 +169,8 @@ class ImageDownloadService{
                 result.name = optionsRun.save.name;
 
             }while(false);
+
+            console.log("downloading image: " + url);
             
             const res = await fetch(url, {
                 method: "get",
