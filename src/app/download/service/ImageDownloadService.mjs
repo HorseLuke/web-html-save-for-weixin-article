@@ -50,7 +50,7 @@ class ImageDownloadService{
     }
 
     /**
-     * 批量下载图片
+     * 批量下载图片（执行过程）
      * @param list Array [
      *     {url: "xxx", options: {}}
      * ]
@@ -265,6 +265,12 @@ class ImageDownloadService{
 
     }
 
+    /**
+     * 使用node-fetch下载图片
+     * @param url 
+     * @param opts 
+     * @param maxTry 重试次数，默认3次
+     */
     async _downloadImageUsingFetch(url, opts, maxTry){
 
         maxTry = maxTry || 3;
@@ -279,7 +285,6 @@ class ImageDownloadService{
                 await new Promise(resolve => setTimeout(resolve, parseInt(Math.random() * 1000 + 1)));  
             }
 
-            
             console.log("downloading image TRY #" + currentCount + ": " + url);
 
             try{
