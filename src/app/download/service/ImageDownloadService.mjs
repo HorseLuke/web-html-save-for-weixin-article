@@ -2,6 +2,7 @@ import * as fs from "fs";
 import config from "config";
 import fetch from "node-fetch";
 import merge from "merge";
+import AbortController from 'abort-controller';
 import imageTypeDetect from "image-type";
 import randomstring from "randomstring";
 
@@ -128,6 +129,17 @@ class ImageDownloadService{
             "error": "",
         };
 
+        const timeoutSetting = options.timeout ? options.timeout : 30000;
+
+        const controller = new AbortController();
+        const timeoutSignal = setTimeout(
+          () => {
+              console.log("AbortController need abort");
+              controller.abort(); 
+          },
+          timeoutSetting
+        );
+
         try{
 
             let saveDefault = config.get("imageDownload");
@@ -136,7 +148,8 @@ class ImageDownloadService{
                 headers: {
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36"
                 },
-                timeout: 30000,
+                follow: 3, 
+                timeout: 30000, 
                 save: {
                     name: "",
                     dir_path: saveDefault.dir_path,
@@ -174,7 +187,10 @@ class ImageDownloadService{
             
             const res = await fetch(url, {
                 method: "get",
-                headers: optionsRun.headers
+                headers: optionsRun.headers,
+                signal: controller.signal,
+                follow: optionsRun.follow, 
+                timeout: optionsRun.timeout,
             });
     
             const buffer = await res.buffer();
@@ -244,6 +260,10 @@ class ImageDownloadService{
             result.error = "UNKNOWN_EXCEPTION";
             result.exception = e;
             return result;
+
+        }finally{
+            console.log("clearTimeout: timeoutSignal");
+            clearTimeout(timeoutSignal);
         }
 
 

@@ -4,11 +4,12 @@
   "description": "",
   "main": "src/app.mjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "abort-controller": "^3.0.0",
     "config": "^3.2.6",
     "express": "^4.17.1",
     "image-type": "^4.1.0",
@@ -20,6 +21,7 @@
     "randomstring": "^1.1.5"
   },
   "devDependencies": {
+    "jest": "^25.1.0",
     "jshint": "^2.11.0"
   }
 }
