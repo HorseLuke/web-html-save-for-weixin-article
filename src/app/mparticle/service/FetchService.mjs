@@ -171,25 +171,34 @@ class FetchService{
             });
 
             const blankPrepare = await page.evaluate(() => {
-                window.FetchServiceBlankPageEvaluateHandleHelper.clearScripts();
                 return window.FetchServiceBlankPageEvaluateHandleHelper.fixHTMLHead();
             });
 
             const finalHTMLResource = await page.evaluate((articleMeta, imageListDownloaded, HTMLData) => {
                 window.FetchServiceBlankPageEvaluateHandleHelper.addHTML(articleMeta, imageListDownloaded, HTMLData);
+                window.FetchServiceBlankPageEvaluateHandleHelper.clearScripts();
                 return window.FetchServiceBlankPageEvaluateHandleHelper.getWholeHTML();
             }, articleMeta, imageListDownloaded, HTMLData);
             
             
             const writeResult = await this._writeData(articleMeta.save_dir + "/index-with-pics.html", finalHTMLResource);
 
-            const finalHTMLResource2 = await page.evaluate(() => {
+            const finalHTMLResourceWithBlankImg = await page.evaluate(() => {
+                window.FetchServiceBlankPageEvaluateHandleHelper.replaceAllImgToBlankImg();
+                window.FetchServiceBlankPageEvaluateHandleHelper.clearScripts();
+                return window.FetchServiceBlankPageEvaluateHandleHelper.getWholeHTML();
+            });
+            
+            const writeResultBlankImgHTML = await this._writeData(articleMeta.save_dir + "/index-with-blank-pics.html", finalHTMLResourceWithBlankImg);
+
+            const finalHTMLResourceWithoutImg = await page.evaluate(() => {
                 window.FetchServiceBlankPageEvaluateHandleHelper.replaceAllImgToFilename();
+                window.FetchServiceBlankPageEvaluateHandleHelper.clearScripts();
                 return window.FetchServiceBlankPageEvaluateHandleHelper.getWholeHTML();
             });
             
             
-            const writeResultNoImgHTML = await this._writeData(articleMeta.save_dir + "/index-without-pics.html", finalHTMLResource2);
+            const writeResultNoImgHTML = await this._writeData(articleMeta.save_dir + "/index-only-text.html", finalHTMLResourceWithoutImg);
 
             articleMeta.success = true;
 
@@ -200,7 +209,8 @@ class FetchService{
 
             fs.appendFileSync(
                 mpArticleSaveRoot + "/article-list-meta.txt",
-                [
+                [                    
+                    articleMeta.save_date + " " + articleMeta.save_time,
                     articleMeta.save_dir,
                     articleMeta.url,
                     articleMeta.title,
@@ -241,7 +251,7 @@ class FetchService{
                 failedResult.push(resultSingle.join("\t"));
             }
         }
-        
+
         await this._writeData(articleMeta.save_dir + "/image-download-all-result.txt", result.join("\r\n"));
         if(failedResult.length > 0){
             await this._writeData(articleMeta.save_dir + "/image-download-failed-result.txt", failedResult.join("\r\n"));

@@ -125,13 +125,11 @@
         for(let i = 0 ; i < imglist.length; i++){
             let img = imglist[i];
             let filename = img.getAttribute("data-x-download-filename");
-            img.src = helper.drawCanvasAndExportToImage(filename, 30, "green", "white");
 
-            /*
             let newDom = document.createElement("span");
             newDom.setAttribute("data-x-was-img", 1);
             newDom.setAttribute("data-x-img-file-name", filename);
-            newDom.style.backgroundColor = "#FF9800";
+            newDom.style.backgroundColor = "green";
             newDom.style.color = "white";
             newDom.style.fontWeight="bold";
             newDom.style.margin = "30px 0";
@@ -139,7 +137,6 @@
             newDom.innerText = filename;
 
             img.replaceWith(newDom);
-            */
 
         }
     };
@@ -152,12 +149,9 @@
             let img = imglist[i];
             let filename = img.getAttribute("data-x-download-filename");
             
-            img.src = helper.drawCanvasAndExportToImage("[FAILED!]" + filename, 30, "red", "white");
-
-            /*
             let newDom = document.createElement("span");
             newDom.setAttribute("data-x-was-img", 1);
-            newDom.setAttribute("data-x-img-file-name", filename);
+            newDom.setAttribute("data-x-img-file-name", "[FAILED!]" + filename);
             newDom.style.backgroundColor = "red";
             newDom.style.color = "white";
             newDom.style.fontWeight="bold";
@@ -166,10 +160,42 @@
             newDom.innerText = filename;
 
             img.replaceWith(newDom);
-            */
 
         }
     };
+
+
+    helper.replaceAllImgToBlankImg = function(){
+        helper.replaceAllSuccessImgToBlankImg();
+        helper.replaceAllFailedImgToBlankImg();
+    };
+
+    helper.replaceAllSuccessImgToBlankImg = function(){
+
+        let imglist = document.querySelectorAll("img[data-x-download-success='1']");
+
+        for(let i = 0 ; i < imglist.length; i++){
+            let img = imglist[i];
+            let filename = img.getAttribute("data-x-download-filename");
+
+            img.src = helper.drawCanvasAndExportToImage(filename, 30, "green", "white");
+
+        }
+    };
+
+    helper.replaceAllFailedImgToBlankImg = function(){
+
+        let imglist = document.querySelectorAll("img[data-x-download-success='0']");
+
+        for(let i = 0 ; i < imglist.length; i++){
+            let img = imglist[i];
+            let filename = img.getAttribute("data-x-download-filename");
+            
+            img.src = helper.drawCanvasAndExportToImage("[FAILED!]" + filename, 30, "red", "white");
+
+        }
+    };
+
 
     helper.drawCanvasAndExportToImage = function(text, fontsize, fillcolor, fontcolor){
         text = text || "default";
