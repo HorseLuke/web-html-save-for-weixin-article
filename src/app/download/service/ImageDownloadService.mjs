@@ -7,11 +7,15 @@ import AbortController from 'abort-controller';
 import imageTypeDetect from "image-type";
 import randomstring from "randomstring";
 
-class ImageDownloadService extends EventEmitter{
+class ImageDownloadService{
 
     constructor(){
-        super();
-        this.allowImgExt = ["jpg", "jpeg", "png", "gif", "webp"];
+        this._eventEmitter = new EventEmitter();
+        this._allowImgExt = ["jpg", "jpeg", "png", "gif", "webp"];
+    }
+
+    get eventEmitter(){
+        return this._eventEmitter;
     }
 
     /**
@@ -87,8 +91,8 @@ class ImageDownloadService extends EventEmitter{
                 returnResult.push(singleResult);
                 processed++;
                 runningResource["emit-start-number"]++;
-                
-                this.emit("batch-image-downloading-finish-one", {
+
+                this._eventEmitter.emit("batch-image-downloading-finish-one", {
                     finishCount: runningResource["emit-start-number"],
                     total: runningResource["emit-total-number"],
                     url: urlForInternal,
@@ -219,7 +223,7 @@ class ImageDownloadService extends EventEmitter{
             }
 
             const detectImageType = imageTypeRes.ext.toLocaleLowerCase();
-            if(!this.allowImgExt.includes(detectImageType)){
+            if(!this._allowImgExt.includes(detectImageType)){
                 result.error = "NOT_ALLOWED_IMAGE_EXT";
                 return result;
             }
@@ -302,7 +306,7 @@ class ImageDownloadService extends EventEmitter{
                 await new Promise(resolve => setTimeout(resolve, parseInt(Math.random() * 1000 + 1)));  
             }
 
-            this.emit("single-image-downloading", {
+            this._eventEmitter.emit("single-image-downloading", {
                 url: url,
                 currentTryCount: currentCount
             });
