@@ -87,7 +87,7 @@ class BrowserContainerService{
             }
 
             try{
-                let closeResult = this.closeHandler.apply(this.browser, [this.browser]);
+                let closeResult = this.closeHandler.apply(this, [this.browser]);
                 if(closeResult instanceof Promise){
                     await closeResult;
                 }
@@ -99,7 +99,9 @@ class BrowserContainerService{
         }while(false);
 
         try{
-            await this.browser.close();
+            const browserOld = this.browser;
+            this.browser = null;
+            await browserOld.close();
             return 0;
         }catch(e){
             console.error(e);
