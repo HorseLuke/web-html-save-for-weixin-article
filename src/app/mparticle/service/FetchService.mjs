@@ -17,6 +17,8 @@ class FetchService{
             throw new Error("NOT mp.weixin.qq.com");
         }
 
+        url = url.replace(/^http:\/\//i, 'https://');
+
         const mpArticleSaveRoot = config.get("mpArticleSave.dir_path");
 
         const currentTime = new Date();
@@ -63,13 +65,12 @@ class FetchService{
         //初始化browser
         const browserContainerInstance = await BrowserContainerService.createInstanceByConfigName("chromium", "playwrightChromiumLaunchDefault");
 
-
         //主流程
         try{
-                    
+
             const page = await browserContainerInstance.createNewContextAndPage(url, {
                 bypassCSP: true,
-                //userAgent: "Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3765.0 Mobile Safari/537.36",
+                userAgent: "Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3765.0 Mobile Safari/537.36 SaveEditorsLife/0.0.1",
                 viewport: {
                     'width': 731,
                     'height': 411,
@@ -77,7 +78,7 @@ class FetchService{
                     'isMobile': true              
                 }
             });
-            
+
             page.on("domcontentloaded", async () => {
                 console.log("domcontentloaded");
                 return 1;
@@ -227,7 +228,7 @@ class FetchService{
         }
 
         //关闭浏览器
-        const closeBrowserTimeout = 10;
+        const closeBrowserTimeout = 30;
         await new Promise(resolve => setTimeout(resolve, closeBrowserTimeout));    //暂停closeBrowserTimeout毫秒
         //await page.screenshot({path: 'screenshot.png'});
         await browserContainerInstance.close();
