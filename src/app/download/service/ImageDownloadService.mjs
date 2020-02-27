@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import EventEmitter from "events";
 import config from "config";
 import fetch from "node-fetch";
 import merge from "merge";
@@ -6,9 +7,10 @@ import AbortController from 'abort-controller';
 import imageTypeDetect from "image-type";
 import randomstring from "randomstring";
 
-class ImageDownloadService{
+class ImageDownloadService extends EventEmitter{
 
     constructor(){
+        super();
         this.allowImgExt = ["jpg", "jpeg", "png", "gif", "webp"];
     }
 
@@ -29,8 +31,13 @@ class ImageDownloadService{
             eachParallelChunk = 10;
         }
 
+        var runningResource =  {
+            "emit-start-number": 0,
+            "emit-total-number": imglist.length
+        };
+
         if(imglist.length <= eachParallelChunk){
-            return await this._downloadImagelistProcess(imglist, defaultOptions);
+            return await this._downloadImagelistProcess(imglist, defaultOptions, runningResource);
         }
 
         const result = [];
@@ -38,7 +45,7 @@ class ImageDownloadService{
         var i,j,temparray,chunk = eachParallelChunk;
         for (i=0,j=imglist.length; i<j; i+=chunk) {
             temparray = imglist.slice(i,i+chunk);
-            let chunkResult = await this._downloadImagelistProcess(temparray, defaultOptions);
+            let chunkResult = await this._downloadImagelistProcess(temparray, defaultOptions, runningResource);
             for(let chri = 0; chri < chunkResult.length; chri++){
                 result.push(chunkResult[chri]);
             }
@@ -57,7 +64,7 @@ class ImageDownloadService{
      * @param defaultOptions Object
      * @return Promise 
      */
-    _downloadImagelistProcess(imglist, defaultOptions){
+    _downloadImagelistProcess(imglist, defaultOptions, runningResource){
 
         //其实可以使用Promise.allSettled。但此处暂不使用，主要研究并发处理。
 
@@ -76,8 +83,18 @@ class ImageDownloadService{
             var internalDownloadImageRun = async (i, urlForInternal, optionsForInternal) => {
                 let singleResult = await this.downloadImage(urlForInternal, optionsForInternal);
                 //returnResult.push([i, urlForInternal, optionsForInternal, singleResult]);
+
                 returnResult.push(singleResult);
                 processed++;
+                runningResource["emit-start-number"]++;
+                
+                this.emit("batch-image-downloading-finish-one", {
+                    finishCount: runningResource["emit-start-number"],
+                    total: runningResource["emit-total-number"],
+                    url: urlForInternal,
+                    result: singleResult
+                });
+
                 if(processed == totalCount){
                     resolve(returnResult);
                 }
@@ -285,7 +302,10 @@ class ImageDownloadService{
                 await new Promise(resolve => setTimeout(resolve, parseInt(Math.random() * 1000 + 1)));  
             }
 
-            console.log("downloading image TRY #" + currentCount + ": " + url);
+            this.emit("single-image-downloading", {
+                url: url,
+                currentTryCount: currentCount
+            });
 
             try{
                 const res = await fetch(url, opts);

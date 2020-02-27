@@ -322,6 +322,15 @@ class FetchService{
 
         const ImageDownloadServiceInstance = new ImageDownloadService();
 
+        ImageDownloadServiceInstance.on("single-image-downloading", function(data){
+            console.log("Downloading one image. Try #" + data.currentTryCount + ": " + data.url);
+        });
+
+        ImageDownloadServiceInstance.on("batch-image-downloading-finish-one", function(data){
+            console.log("Downloading multi image. Finish progress " + (data.finishCount / data.total * 100) + "%");
+        });
+
+
         const result = await ImageDownloadServiceInstance.downloadImagelist(imageNeedDownload, imageDownloadDefaultOptions);
 
         return result;
