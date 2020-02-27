@@ -125,7 +125,9 @@
         for(let i = 0 ; i < imglist.length; i++){
             let img = imglist[i];
             let filename = img.getAttribute("data-x-download-filename");
+            img.src = helper.drawCanvasAndExportToImage(filename, 30, "green", "white");
 
+            /*
             let newDom = document.createElement("span");
             newDom.setAttribute("data-x-was-img", 1);
             newDom.setAttribute("data-x-img-file-name", filename);
@@ -137,6 +139,8 @@
             newDom.innerText = filename;
 
             img.replaceWith(newDom);
+            */
+
         }
     };
 
@@ -146,8 +150,11 @@
 
         for(let i = 0 ; i < imglist.length; i++){
             let img = imglist[i];
-            let filename = "[DOWNLOAD_FAILED!]" + img.getAttribute("data-x-download-filename");
+            let filename = img.getAttribute("data-x-download-filename");
+            
+            img.src = helper.drawCanvasAndExportToImage("[FAILED!]" + filename, 30, "red", "white");
 
+            /*
             let newDom = document.createElement("span");
             newDom.setAttribute("data-x-was-img", 1);
             newDom.setAttribute("data-x-img-file-name", filename);
@@ -159,7 +166,51 @@
             newDom.innerText = filename;
 
             img.replaceWith(newDom);
+            */
+
         }
+    };
+
+    helper.drawCanvasAndExportToImage = function(text, fontsize, fillcolor, fontcolor){
+        text = text || "default";
+        fontsize = fontsize || 30;
+        fillcolor = fillcolor || "white";
+        fontcolor = fontcolor || "black";
+
+        text = "" + text;
+
+        let canvas = document.createElement("canvas");
+        let ctx = canvas.getContext("2d");
+
+        ctx.font = 'bold ' + fontsize + 'px';
+
+        //https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript
+        let metrics = ctx.measureText(text);
+
+        console.log(metrics);
+
+        let width = parseInt(metrics.width) + 8;
+        let height = parseInt(fontsize) + 8;
+
+        //设置宽高
+        canvas.width = width;
+        canvas.height = height;
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+        //设置背景色
+        ctx.fillStyle = fillcolor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        //设置文字
+        ctx.font =  'bold ' + fontsize + 'px';
+        ctx.fillStyle = fontcolor;
+        ctx.textAlign = "center";
+        ctx.fillText(text, canvas.width/2, canvas.height/2);
+
+        document.getElementsByTagName("body")[0].append(canvas);
+
+        return canvas.toDataURL();
+
     };
 
 

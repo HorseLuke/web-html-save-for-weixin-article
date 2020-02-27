@@ -226,6 +226,7 @@ class FetchService{
 
     async _writeImageDownloadResult(articleMeta, imageListDownloaded){
         const result = [];
+        const failedResult = [];
         for(let i = 0; i < imageListDownloaded.length; i++){
             let row = imageListDownloaded[i];
             let resultSingle = [
@@ -235,8 +236,16 @@ class FetchService{
                 row.url,
             ];
             result.push(resultSingle.join("\t"));
+
+            if(!row.success){
+                failedResult.push(resultSingle.join("\t"));
+            }
         }
-        await this._writeData(articleMeta.save_dir + "/image-download-result.txt", result.join("\r\n"));
+        
+        await this._writeData(articleMeta.save_dir + "/image-download-all-result.txt", result.join("\r\n"));
+        if(failedResult.length > 0){
+            await this._writeData(articleMeta.save_dir + "/image-download-failed-result.txt", failedResult.join("\r\n"));
+        }
     }
 
     _writeData(filepath, bufferData){
