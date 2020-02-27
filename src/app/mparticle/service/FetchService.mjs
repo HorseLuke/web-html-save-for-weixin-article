@@ -63,8 +63,10 @@ class FetchService{
         //初始化browser
         const browserContainerInstance = await BrowserContainerService.createInstanceByConfigName("chromium", "playwrightChromiumLaunchDefault");
 
+
         //主流程
         try{
+                    
             const page = await browserContainerInstance.createNewContextAndPage(url, {
                 bypassCSP: true,
                 //userAgent: "Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3765.0 Mobile Safari/537.36",
@@ -75,7 +77,7 @@ class FetchService{
                     'isMobile': true              
                 }
             });
-
+            
             page.on("domcontentloaded", async () => {
                 console.log("domcontentloaded");
                 return 1;
@@ -220,7 +222,7 @@ class FetchService{
     
         }catch(e){
             //throw之前，强制关闭浏览器
-            //browserContainerInstance.close();
+            browserContainerInstance.close();
             throw e;
         }
 

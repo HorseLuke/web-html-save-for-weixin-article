@@ -18,10 +18,12 @@ class BrowserContainerService{
         return BrowserContainerInstance;
     }
 
-    constructor(browser, closeHandler){
+    constructor(browser){
         this.browser = browser;
         this.closeHandler = null;
-        this.setCloseHandler(closeHandler);
+        this.createTime = new Date();
+        this.keepAliveTimeout = 0;
+        this.keepAliveTimeoutHandler = null;
     }
 
     getBrowser(){
@@ -53,7 +55,28 @@ class BrowserContainerService{
         this.closeHandler = closeHandler ? closeHandler : null;
     }
 
+    /**
+     * 设置运行超时时间
+     * @param timeout int 0表示永远不超时，一直运行
+     */
+    setKeepAliveTimeout(timeout){
+        if(this.keepAliveTimeoutHandler != null){
+            clearTimeout(this.keepAliveTimeoutHandler);
+        }
+        this.keepAliveTimeout = timeout;
+        if(this.keepAliveTimeout > 0){
+            this.keepAliveTimeoutHandler = setTimeout(() => {
+                this.close();
+            }, this.keepAliveTimeout);
+        }
+    }
+
     async close(){
+
+        if(this.keepAliveTimeoutHandler != null){
+            clearTimeout(this.keepAliveTimeoutHandler);
+        }
+
         if(this.browser == null){
             return 0;
         }
