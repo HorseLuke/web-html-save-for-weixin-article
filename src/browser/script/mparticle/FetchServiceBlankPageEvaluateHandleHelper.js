@@ -187,8 +187,6 @@
         //https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript
         let metrics = ctx.measureText(text);
 
-        console.log(metrics);
-
         let width = parseInt(metrics.width) + 8;
         let height = parseInt(fontsize) + 8;
 
@@ -206,8 +204,6 @@
         ctx.fillStyle = fontcolor;
         ctx.textAlign = "center";
         ctx.fillText(text, canvas.width/2, canvas.height/2);
-
-        document.getElementsByTagName("body")[0].append(canvas);
 
         return canvas.toDataURL();
 
