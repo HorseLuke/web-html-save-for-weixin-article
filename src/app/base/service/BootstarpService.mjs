@@ -1,5 +1,7 @@
+import CommonJsCompatHelper from "../helper/CommonJsCompatHelper.cjs";
+
 // http://stackoverflow.com/a/26227662/1527470
-//https://www.jianshu.com/p/f40a77bbd74e
+// https://www.jianshu.com/p/f40a77bbd74e
 // https://stackoverflow.com/questions/50268077/dirname-is-not-defined-in-node-js-10-experimental
 
 const singletonEnforcer = Symbol();
@@ -9,6 +11,9 @@ const singletonEnforcer = Symbol();
  */
 let _instance = null;
 
+/**
+ * 全局底层启动器，运行周期中，有且只有一个实例。
+ */
 class BootstarpService{
 
     constructor(enforcer){
@@ -19,6 +24,7 @@ class BootstarpService{
     }
 
     /**
+     * 获取一个单例
      * @return _instance {BootstarpService} - BootstarpService
      */
     static get instance(){
@@ -46,7 +52,7 @@ class BootstarpService{
     }
 
     CJSRequireFromAppdir(filepath){
-        return require(this.appdir + "/" + filepath);
+        return CommonJsCompatHelper.require(this.appdir + "/" + filepath);
     }
 
 }
