@@ -66,6 +66,7 @@ class ImageDownloadService{
      *     {url: "xxx", options: {}}
      * ]
      * @param defaultOptions Object
+     * @param runningResource Object
      * @return Promise 
      */
     _downloadImagelistProcess(imglist, defaultOptions, runningResource){
