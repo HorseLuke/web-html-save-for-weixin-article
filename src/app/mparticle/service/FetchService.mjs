@@ -10,7 +10,7 @@ class FetchService{
     constructor(){
     }
 
-    async fetch(url){
+    async fetch(url, maxPageTimeout){
 
         if(checkUrlIsInHostList(url, ["mp.weixin.qq.com"]) != 0){
             throw new Error("NOT mp.weixin.qq.com");
@@ -20,6 +20,9 @@ class FetchService{
 
         const mpArticleSaveRoot = config.get("mpArticleSave.dir_path");
 
+        const maxBrowserTimeout = 0;
+
+        
         const currentTime = new Date();
 
         const articleMeta = {
@@ -61,13 +64,40 @@ class FetchService{
 
         }while(false);
 
+        
         //初始化browser
-        const browserInstance = await PlaywrightHelper.createBrowserByConfigName("chromium", "playwrightChromiumLaunchDefault");
+        const browserInstance = await PlaywrightHelper.createBrowserByConfigName("chromium", "playwrightChromiumLaunchDefault", maxBrowserTimeout);
+
+        try{
+            await this._fetchRunner(articleMeta, browserInstance, maxPageTimeout, mpArticleSaveRoot);
+        }catch(e){
+            console.error(e);
+        }
+
+        //关闭浏览器
+        const closeBrowserTimeout = 30;
+        await new Promise(resolve => setTimeout(resolve, closeBrowserTimeout));    //暂停closeBrowserTimeout毫秒
+        //await page.screenshot({path: 'screenshot.png'});
+        await browserInstance.close();
+
+        return articleMeta;
+
+    }
+
+
+    async _fetchRunner(articleMeta, browserInstance, maxPageTimeout, mpArticleSaveRoot){
+        
+
+        maxPageTimeout = maxPageTimeout || 300000;    //默认最多只能运行300秒
+        const maxBrowserContextTimeout = maxPageTimeout;
+
+        let browserContextInstance = null;
+        let page = null;
 
         //主流程
         try{
 
-            const browserContextInstance = await PlaywrightHelper.createBrowserContext(browserInstance, 
+            browserContextInstance = await PlaywrightHelper.createBrowserContext(browserInstance, 
                 {
                     bypassCSP: true,
                     userAgent: "Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3765.0 Mobile Safari/537.36 SaveEditorsLife/0.0.1",
@@ -78,21 +108,21 @@ class FetchService{
                         'isMobile': true              
                     }
                 },
-                300000    //默认只能运行5分钟
+                maxBrowserContextTimeout    //默认只能运行5分钟
             );
 
-            const page = await PlaywrightHelper.createPage(browserContextInstance, url, 300000);   //默认只能运行5分钟
+            page = await PlaywrightHelper.createPage(browserContextInstance, articleMeta.url, maxPageTimeout);
 
             page.on("domcontentloaded", async () => {
                 console.log("domcontentloaded");
                 return 1;
             });
 
-            const bodyHandle = await page.$wait("body");
+            await page.$wait("body");
             
             /*
             console.log("page.screenshot now");
-            
+
             await page.screenshot({
                 fullPage: true,
                 type: "jpeg",
@@ -115,8 +145,7 @@ class FetchService{
             });
             
             if(detectInfo != 0){
-                await browserInstance.close();
-                return articleMeta;
+                return ;
             }
     
             const navigatorJSHandlePromise = page.evaluateHandle(() => {
@@ -223,20 +252,17 @@ class FetchService{
                 ].join("\t") + "\r\n"
             );
 
-    
         }catch(e){
-            //throw之前，强制关闭浏览器
-            browserInstance.close();
             throw e;
+        }finally{
+            console.log("finally fetch finish");
+            try{
+                await browserContextInstance.close();
+            }catch(e){
+                console.error(e);
+            }
         }
 
-        //关闭浏览器
-        const closeBrowserTimeout = 30;
-        await new Promise(resolve => setTimeout(resolve, closeBrowserTimeout));    //暂停closeBrowserTimeout毫秒
-        //await page.screenshot({path: 'screenshot.png'});
-        await browserInstance.close();
-
-        return articleMeta;
 
     }
 
