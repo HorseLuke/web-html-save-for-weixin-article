@@ -1,10 +1,9 @@
 import fs from "fs";
 import randomstring from "randomstring";
 import config from "config";
-import BrowserContainerService from "../../playwright/service/BrowserContainerService.mjs";
 import {checkUrlIsInHostList} from "../../base/helper/UrlHelper.mjs";
 import ImageDownloadService from "../../download/service/ImageDownloadService.mjs";
-
+import PlaywrightHelper from "../../playwright/helper/PlaywrightHelper.mjs";
 
 class FetchService{
 
@@ -63,21 +62,26 @@ class FetchService{
         }while(false);
 
         //初始化browser
-        const browserContainerInstance = await BrowserContainerService.createInstanceByConfigName("chromium", "playwrightChromiumLaunchDefault");
+        const browserInstance = await PlaywrightHelper.createBrowserByConfigName("chromium", "playwrightChromiumLaunchDefault");
 
         //主流程
         try{
 
-            const page = await browserContainerInstance.createNewContextAndPage(url, {
-                bypassCSP: true,
-                userAgent: "Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3765.0 Mobile Safari/537.36 SaveEditorsLife/0.0.1",
-                viewport: {
-                    'width': 731,
-                    'height': 411,
-                    'deviceScaleFactor': 1,
-                    'isMobile': true              
-                }
-            });
+            const browserContextInstance = await PlaywrightHelper.createBrowserContext(browserInstance, 
+                {
+                    bypassCSP: true,
+                    userAgent: "Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3765.0 Mobile Safari/537.36 SaveEditorsLife/0.0.1",
+                    viewport: {
+                        'width': 731,
+                        'height': 411,
+                        'deviceScaleFactor': 1,
+                        'isMobile': true              
+                    }
+                },
+                300000    //默认只能运行5分钟
+            );
+
+            const page = await PlaywrightHelper.createPage(browserContextInstance, url, 300000);   //默认只能运行5分钟
 
             page.on("domcontentloaded", async () => {
                 console.log("domcontentloaded");
@@ -88,8 +92,7 @@ class FetchService{
             
             /*
             console.log("page.screenshot now");
-
-
+            
             await page.screenshot({
                 fullPage: true,
                 type: "jpeg",
@@ -112,7 +115,7 @@ class FetchService{
             });
             
             if(detectInfo != 0){
-                await browserContainerInstance.close();
+                await browserInstance.close();
                 return articleMeta;
             }
     
@@ -223,7 +226,7 @@ class FetchService{
     
         }catch(e){
             //throw之前，强制关闭浏览器
-            browserContainerInstance.close();
+            browserInstance.close();
             throw e;
         }
 
@@ -231,7 +234,7 @@ class FetchService{
         const closeBrowserTimeout = 30;
         await new Promise(resolve => setTimeout(resolve, closeBrowserTimeout));    //暂停closeBrowserTimeout毫秒
         //await page.screenshot({path: 'screenshot.png'});
-        await browserContainerInstance.close();
+        await browserInstance.close();
 
         return articleMeta;
 
