@@ -1,6 +1,7 @@
 import fs from "fs";
 import randomstring from "randomstring";
 import config from "config";
+import BootstarpService from "../../base/service/BootstarpService.mjs";
 import {checkUrlIsInHostList} from "../../base/helper/UrlHelper.mjs";
 import ImageDownloadService from "../../download/service/ImageDownloadService.mjs";
 import PlaywrightHelper from "../../playwright/helper/PlaywrightHelper.mjs";
@@ -10,6 +11,11 @@ class FetchService{
     constructor(){
     }
 
+    /**
+     * 
+     * @param url 
+     * @param maxPageTimeout 
+     */
     async fetch(url, maxPageTimeout){
 
         if(checkUrlIsInHostList(url, ["mp.weixin.qq.com"]) != 0){
@@ -133,11 +139,11 @@ class FetchService{
             */
 
             await page.addScriptTag({
-                content: String(fs.readFileSync(global.BootstarpInstance.getAppdir() + "/browser/script/base/BaseHelper.js")),
+                content: String(fs.readFileSync(BootstarpService.instance.getAppdir() + "/browser/script/base/BaseHelper.js")),
             });
 
             await page.addScriptTag({
-                content: String(fs.readFileSync(global.BootstarpInstance.getAppdir() + "/browser/script/mparticle/FetchServiceMpArticleEvaluateHandleHelper.js")),
+                content: String(fs.readFileSync(BootstarpService.instance.getAppdir() + "/browser/script/mparticle/FetchServiceMpArticleEvaluateHandleHelper.js")),
             });
 
             const detectInfo = await page.evaluate(() => {
@@ -198,11 +204,11 @@ class FetchService{
             await page.goto("about:blank");
 
             await page.addScriptTag({
-                content: String(fs.readFileSync(global.BootstarpInstance.getAppdir() + "/browser/script/base/BaseHelper.js")),
+                content: String(fs.readFileSync(BootstarpService.instance.getAppdir() + "/browser/script/base/BaseHelper.js")),
             });
 
             await page.addScriptTag({
-                content: String(fs.readFileSync(global.BootstarpInstance.getAppdir() + "/browser/script/mparticle/FetchServiceBlankPageEvaluateHandleHelper.js")),
+                content: String(fs.readFileSync(BootstarpService.instance.getAppdir() + "/browser/script/mparticle/FetchServiceBlankPageEvaluateHandleHelper.js")),
             });
 
             const blankPrepare = await page.evaluate(() => {
