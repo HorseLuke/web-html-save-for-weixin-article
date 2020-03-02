@@ -1,4 +1,4 @@
-import CommonJsCompatHelper from "../helper/CommonJsCompatHelper.cjs";
+import { createRequire } from 'module';
 
 // http://stackoverflow.com/a/26227662/1527470
 // https://www.jianshu.com/p/f40a77bbd74e
@@ -26,7 +26,7 @@ class BootstarpService{
     }
 
     /**
-     * 获取一个单例
+     * 获取一个单例。
      * @return {BootstarpService} BootstarpService单例
      */
     static get instance(){
@@ -43,7 +43,7 @@ class BootstarpService{
 
     /**
      * 设置appdir。
-     * 该方法仅且只有设置一次，设置后请Object.freeze该BootstarpService单例
+     * 该方法仅且只有设置一次，设置后请Object.freeze该BootstarpService单例。
      * @param {string} dir appdir
      */
     setAppdir(dir){
@@ -51,7 +51,7 @@ class BootstarpService{
     }
 
     /**
-     * 获取appdir
+     * 获取appdir。
      * @return {string}
      */
     getAppdir(){
@@ -59,7 +59,7 @@ class BootstarpService{
     }
 
     /**
-     * 使用ES Module模块方式导入appdir目录下的文件（主要是.mjs文件）
+     * 使用ES Module模块方式导入appdir目录下的文件（主要是.mjs文件）。
      * @param {string} filepath
      * @return {Promise}
      */
@@ -68,12 +68,14 @@ class BootstarpService{
     }
 
     /**
-     * 使用Node.js的Common JS模块方式导入appdir目录下的文件（主要是.cjs文件）
+     * 使用Node.js的Common JS模块方式导入appdir目录下的文件（主要是.cjs文件）。
+     * @see https://nodejs.org/api/esm.html#esm_differences_between_es_modules_and_commonjs
      * @param {string} filepath appdir目录下的文件路径
      * @return {any} exported module content
      */
     CJSRequireFromAppdir(filepath){
-        return CommonJsCompatHelper.require(this.appdir + "/" + filepath);
+        const require = createRequire("file://" + this.appdir + "/");
+        return require('./' + filepath);
     }
 
 }
