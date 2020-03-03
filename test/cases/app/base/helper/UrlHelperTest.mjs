@@ -1,4 +1,4 @@
-import {checkUrlIsInHostList} from "../../../../src/app/base/helper/UrlHelper.mjs";
+import {checkUrlIsInHostList} from "../../../../../src/app/base/helper/UrlHelper.mjs";
 
 
 describe('checkUrlIsInHostList', function() {
