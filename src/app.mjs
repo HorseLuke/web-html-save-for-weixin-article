@@ -2,13 +2,13 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import util from 'util';
 //import moduleAlias from "module-alias";
-import Bootstarp from "./app/base/service/BootstarpService.mjs";
+import BootstarpService from "./app/base/service/BootstarpService.mjs";
 
-//全局注册唯一启动模块
+//全局唯一启动模块
 /**
- * @var Bootstarp
+ * @var {BootstarpService}
  */
-global.BootstarpInstance = Bootstarp.instance;
+BootstarpService.instance;    //启动唯一启动模块
 
 console.log("process.env.NODE_ENV is " + process.env.NODE_ENV);
 
@@ -19,31 +19,25 @@ console.log("process.env.NODE_ENV is " + process.env.NODE_ENV);
 const appDirPath = dirname(fileURLToPath(import.meta.url));
 
 process.env.NODE_CONFIG_DIR = appDirPath + "/config";
-global.BootstarpInstance.setAppdir(appDirPath);
-Object.freeze(global.BootstarpInstance);
+BootstarpService.instance.setAppdir(appDirPath);
+Object.freeze(BootstarpService.instance);
 
-console.log("global.BootstarpInstance.getAppdir() is " + global.BootstarpInstance.getAppdir());
-
-/*
-moduleAlias.addAliases({
-    '@root': appDirPath,
-    '@app': appDirPath + '/app'
-});
-*/
+console.log("BootstarpService.instance.getAppdir() is " + BootstarpService.instance.getAppdir());
 
 //初始化应用
 (async () => {
     const config = await import("config");
 
-    /*
-    const testCtrl = await global.BootstarpInstance.ESMImportFromAppdir("app/mparticle/testcontroller/FetchOneArticleTestController.mjs");
+    const testCtrl = await BootstarpService.instance.ESMImportFromAppdir("app/mparticle/testcontroller/FetchOneArticleTestController.mjs");
     const testCtrlInstance = new testCtrl.default();
     const result = await testCtrlInstance.testWithMultiPic();
-    */
-   const testCtrl = await global.BootstarpInstance.ESMImportFromAppdir("app/download/testcontroller/BatchImageDownloadTestController.mjs");
+
+
+   /*
+   const testCtrl = await BootstarpService.instance.ESMImportFromAppdir("app/download/testcontroller/BatchImageDownloadTestController.mjs");
    const testCtrlInstance = new testCtrl.default();
    const result = await testCtrlInstance.testBatch();
-
+    */
     console.log(result);
 
 
