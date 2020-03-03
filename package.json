@@ -6,8 +6,8 @@
   "scripts": {
     "test": "jest"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "horseluke@126.com",
+  "license": "MIT",
   "dependencies": {
     "abort-controller": "^3.0.0",
     "config": "^3.2.6",
@@ -21,7 +21,8 @@
     "randomstring": "^1.1.5"
   },
   "devDependencies": {
-    "jest": "^25.1.0",
-    "jshint": "^2.11.0"
+    "jshint": "^2.11.0",
+    "mocha": "^7.1.0",
+    "nyc": "^15.0.0"
   }
 }
