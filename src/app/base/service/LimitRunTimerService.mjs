@@ -52,16 +52,15 @@ class LimitRunTimerService{
      * @param timeout int 0表示永远不超时，一直运行
      */
     set keepAliveTime(milsec){
-        if(this._keepAliveTimeoutHandler){
-            clearTimeout(this._keepAliveTimeoutHandler);
-        }
+        
+        this.clearKeepAliveTimeoutHandler();
 
         this._keepAliveTime = milsec;
         this._startTime = null;
         this._startTime = new Date();
 
         if(milsec > 0){
-            setTimeout(async() => {
+            this._keepAliveTimeoutHandler = setTimeout(async() => {
                 await this.runReachEndtime();
             }, milsec);
         }
@@ -87,6 +86,7 @@ class LimitRunTimerService{
         if(!func instanceof Function){
             throw new Error("Pass is NOT Function");
         }
+
         this._onReachEndtimeEventFunction = func;
     }
 
@@ -107,12 +107,18 @@ class LimitRunTimerService{
             this._onReachEndtimeEventFunction = null;
         }
 
-        if(this._keepAliveTimeoutHandler){
-            clearTimeout(this._keepAliveTimeoutHandler);
-        }
+        this.clearKeepAliveTimeoutHandler();
         this._keepAliveTime = 0;
         this._startTime = null;
         this._startTime = new Date();
+    }
+
+
+    clearKeepAliveTimeoutHandler(){
+        if(this._keepAliveTimeoutHandler != null){
+            clearTimeout(this._keepAliveTimeoutHandler);
+        }
+        this._keepAliveTimeoutHandler = null;
     }
 
     /**
@@ -120,9 +126,7 @@ class LimitRunTimerService{
      */
     async runReachEndtime(){
 
-        if(this._keepAliveTimeoutHandler){
-            clearTimeout(this._keepAliveTimeoutHandler);
-        }
+        this.clearKeepAliveTimeoutHandler();
 
         try{
             if(this._onReachEndtimeEventFunction instanceof Function){
