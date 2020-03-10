@@ -15,7 +15,7 @@ describe('FetchService', function() {
         if(result.success){
             return ;
         }
-        return new Error("result not success");
+        throw new Error("result not success");
     });
 
     
@@ -30,7 +30,7 @@ describe('FetchService', function() {
         if(!result.success){
             return ;
         }
-        return new Error("result unexpected success");
+        throw new Error("result unexpected success");
     });
 
 
