@@ -26,7 +26,7 @@ class FetchService{
 
         const mpArticleSaveRoot = config.get("mpArticleSave.dir_path");
 
-        const maxBrowserTimeout = 0;
+        const maxBrowserTimeout = maxPageTimeout || 300000;
 
         
         const currentTime = new Date();
