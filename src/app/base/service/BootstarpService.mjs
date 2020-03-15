@@ -59,6 +59,46 @@ class BootstarpService{
     }
 
     /**
+     * 检查ctype是否正确
+     * @param {string} type type
+     * @return {boolean}
+     */
+    checkCtype(ctype){
+        const regex = /^[a-z][a-z0-9]{0,}$/i;
+        if(!regex.test(ctype)){
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 解析router字符串
+     * @param {string} router 
+     * @return {object}
+     */
+    parseRouter(router){
+        const result = {
+            "error": -1,
+        };
+
+        const regex = /^([a-z][a-z0-9\_]{0,})\/([a-z][a-z0-9\_]{0,})\/([a-z][a-z0-9\_]{0,})$/i;
+
+        const regexResult = regex.exec(router);
+        if(regexResult == null){
+            return result;
+        }
+
+        result.error = 0;
+        result.app = regexResult[1];
+        result.ctrl = regexResult[2];
+        result.action = regexResult[3];
+
+        return result;
+
+    }
+
+
+    /**
      * 使用ES Module模块方式导入appdir目录下的文件（主要是.mjs文件）。
      * @param {string} filepath
      * @return {Promise}
