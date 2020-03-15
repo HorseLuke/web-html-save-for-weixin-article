@@ -4,6 +4,10 @@ import util from 'util';
 //import moduleAlias from "module-alias";
 import BootstarpService from "./app/base/service/BootstarpService.mjs";
 
+if(!process.env.NODE_ENV){
+    process.env.NODE_ENV = "production";
+}
+
 //全局唯一启动模块
 /**
  * @var {BootstarpService}

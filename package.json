@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/app.mjs",
   "scripts": {
-    "test": "jest"
+    "test": "mocha --config ./.mocharc.cjs",
+    "test-with-coverage": "c8 --all --reporter \"html\" --reports-dir \"./report/coverage-report/\" --temp-directory \"./temp/c8-test/\" mocha --config ./.mocharc.cjs"
   },
   "author": "horseluke@126.com",
   "license": "MIT",

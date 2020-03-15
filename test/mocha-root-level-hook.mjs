@@ -4,6 +4,10 @@ import util from 'util';
 import BootstarpService from "../src/app/base/service/BootstarpService.mjs";
 import mocha from "mocha";
 
+if(!process.env.NODE_ENV){
+    process.env.NODE_ENV = "production";
+}
+
 //全局唯一启动模块
 /**
  * @var {BootstarpService}
