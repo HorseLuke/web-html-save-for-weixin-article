@@ -50,6 +50,7 @@ class LoggerService{
      */
     setWriter(writerName, writer){
         if(writer instanceof LoggerWriterDefault){
+            this.writers[writerName] = null;
             this.writers[writerName] = writer;
             return true;
         }
