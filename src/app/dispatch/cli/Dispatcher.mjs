@@ -23,7 +23,7 @@ class Dispatcher extends AbstractDispatcher{
                 throw new Error("Can not find method " + method + " in controller");
             }
     
-            const result = ctrl[method](argv);
+            const result = await ctrl[method](argv);
     
             console.log(result);
     
