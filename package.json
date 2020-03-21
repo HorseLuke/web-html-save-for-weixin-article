@@ -1,5 +1,5 @@
 {
-  "name": "web-html-save-for-mp-article",
+  "name": "web-html-save-for-weixin-article",
   "version": "1.0.0",
   "description": "A tool for saving articles in mp.weixin.qq.com",
   "main": "src/app.mjs",
@@ -7,7 +7,7 @@
     "app": "node ./src/app.mjs",
     "help": "node ./src/app.mjs help",
     "test": "mocha --config ./.mocharc.cjs",
-    "test-with-coverage": "c8 --all --reporter \"html\" --reports-dir \"./report/coverage-report/\" --temp-directory \"./temp/c8-test/\" mocha --config ./.mocharc.cjs"
+    "test-with-coverage": "c8 --all --reporter \"html\" --reports-dir \"./runtime/coverage-report/\" --temp-directory \"./temp/c8-test/\" mocha --config ./.mocharc.cjs"
   },
   "author": "horseluke@126.com",
   "license": "MIT",
@@ -23,6 +23,10 @@
     "playwright-core": "^0.11.1",
     "randomstring": "^1.1.5",
     "yargs": "^15.3.0"
+  },
+  "engines": {
+    "node": ">=13.8.0",
+    "npm": ">=6.0.0"
   },
   "devDependencies": {
     "c8": "^7.1.0",
