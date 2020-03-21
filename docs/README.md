@@ -13,6 +13,14 @@
   - npm >=6.0.0
   - Chrome >= 79
 
+
+## 一键安装方法
+
+百度网盘链接: [https://pan.baidu.com/s/1j1ZVIhPiMEzJJMJ_0Hx9VA](https://pan.baidu.com/s/1j1ZVIhPiMEzJJMJ_0Hx9VA)  提取码: 38f7
+
+找到最新的release版本，下载并解压到C盘根目录即可。
+
+
 ## 全新安装方法
 
 （1）安装Chrome或者Chromium，并通过开始菜单，获取其可执行文件路径。
