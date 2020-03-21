@@ -147,3 +147,11 @@ npm run test-with-coverage
   - Playwright（微软出品，操作浏览器的Node库）：https://github.com/microsoft/playwright
   - Mocha（单元测试框架）：https://mochajs.org/
   - c8（代码覆盖测试）：https://github.com/bcoe/c8
+
+
+## 其它
+
+如果觉得拯救了您的时间，不妨给个赞赏（手动滑稽）。
+
+![微信赞赏码](https://horseluke.github.io/Assets/img/weixin_zanshangcode.jpg)
+
