@@ -11,18 +11,31 @@ class Dispatcher extends AbstractDispatcher{
     }
 
     async dispatch(ctype, router, argv){
-        const ctrlfile = await this.importControllerFile(ctype, router, argv);
-        const ctrl = new ctrlfile.default();
 
-        const method = "action" + ucfirst(router.action);
+        try{
 
-        if(typeof ctrl[method] != "function"){
-            throw new Error("Can not find method " + method + " in controller");
+            const ctrlfile = await this.importControllerFile(ctype, router, argv);
+            const ctrl = new ctrlfile.default();
+    
+            const method = "action" + ucfirst(router.action);
+    
+            if(typeof ctrl[method] != "function"){
+                throw new Error("Can not find method " + method + " in controller");
+            }
+    
+            const result = ctrl[method](argv);
+    
+            console.log(result);
+    
+        }catch(e){
+
+            BootstarpService.instance.getLogger().log(
+                BootstarpService.getConstant("MSG_LEVEL_ERR"),
+                "cli dispatch error",
+                e
+            );
+            
         }
-
-        const result = ctrl[method](argv);
-
-        console.log(result);
 
     }
 
