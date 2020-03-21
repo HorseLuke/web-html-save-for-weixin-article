@@ -1,12 +1,12 @@
-import LoggerWriterDefault from "../../../../../src/app/logger/writer/LoggerWriterDefault.mjs";
+import LoggerWriterStdout from "../../../../../src/app/logger/writer/LoggerWriterStdout.mjs";
 
 
 
-describe('LoggerWriterDefault', function() {
+describe('LoggerWriterStdout', function() {
 
     it('Test setLevel', async function() {
         
-        const writer = new LoggerWriterDefault();
+        const writer = new LoggerWriterStdout();
         
         const level = 5;
 
@@ -25,7 +25,7 @@ describe('LoggerWriterDefault', function() {
     
     it('Test needLog normal - No need log', async function() {
         
-        const writer = new LoggerWriterDefault();
+        const writer = new LoggerWriterStdout();
         
         const level = 5;
 
@@ -41,7 +41,7 @@ describe('LoggerWriterDefault', function() {
 
     it('Test needLog normal - need log equal', async function() {
         
-        const writer = new LoggerWriterDefault();
+        const writer = new LoggerWriterStdout();
         
         const level = 5;
 
@@ -58,7 +58,7 @@ describe('LoggerWriterDefault', function() {
 
     it('Test needLog normal - need log below', async function() {
         
-        const writer = new LoggerWriterDefault();
+        const writer = new LoggerWriterStdout();
         
         const level = 5;
 
@@ -74,7 +74,7 @@ describe('LoggerWriterDefault', function() {
 
     it('Test log normal - no need log below', async function() {
         
-        const writer = new LoggerWriterDefault();
+        const writer = new LoggerWriterStdout();
         
         const level = 5;
 
@@ -92,7 +92,7 @@ describe('LoggerWriterDefault', function() {
 
     it('Test log normal - need log below', async function() {
         
-        const writer = new LoggerWriterDefault();
+        const writer = new LoggerWriterStdout();
         
         const level = 5;
 
@@ -109,6 +109,7 @@ describe('LoggerWriterDefault', function() {
         if(true !== result2){
             throw new Error("result unexpected not logged");
         }
+
 
     });
 
