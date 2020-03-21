@@ -20,6 +20,14 @@ describe('LoggerWriterDefault', function() {
             throw new Error("result unexpected level from getLevel");
         }
 
+        if(level != writer.setLevel("NOT_NUMBER")){
+            throw new Error("result unexpected level from setLevel by not number");
+        }
+
+        if(level != writer.getLevel()){
+            throw new Error("result unexpected level from getLevel after setLevel by not number");
+        }
+
     });
 
     

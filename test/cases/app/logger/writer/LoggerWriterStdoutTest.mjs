@@ -113,5 +113,25 @@ describe('LoggerWriterStdout', function() {
 
     });
 
+    it('Test log normal - need log on debug', async function() {
+        
+        const writer = new LoggerWriterStdout();
+        
+        const level = 7;
+
+        writer.setLevel(level);
+
+        for(let i = 0; i <= level;  i++){
+
+            let result = await writer.log(i, "test", i);
+
+            if(true !== result){
+                throw new Error("result unexpected not logged in level "+ i);
+            }
+        }
+
+    });
+
+
 });
 
