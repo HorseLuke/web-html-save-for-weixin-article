@@ -1,4 +1,7 @@
 import { createRequire } from 'module';
+import LoggerService from "../../logger/service/LoggerService.mjs";
+import LoggerWriterStdout from "../../logger/writer/LoggerWriterStdout.mjs";
+import * as Constants from "../helper/Constants.mjs";
 
 // http://stackoverflow.com/a/26227662/1527470
 // https://www.jianshu.com/p/f40a77bbd74e
@@ -37,8 +40,39 @@ class BootstarpService{
         return _instance;
     }
 
+    /**
+     * 获取常量
+     * @param {string} ref
+     * @return {string|number} 
+     */
+    static getConstant(ref){
+        return Constants[ref];
+    }
+
+    /**
+     * （内部方法）初始化
+     */
     _init(){
         this.appdir = "";
+        this._initLogger();
+    }
+
+    /**
+     * （内部方法）初始化Logger
+     */
+    _initLogger(){
+        this.logger = new LoggerService();
+        const stdout = new LoggerWriterStdout();
+        stdout.setLevel(LoggerService.MSG_LEVEL_DEBUG);
+        this.logger.setWriter("stdout", stdout);
+    }
+
+    /**
+     * 获取logger
+     * @return {LoggerService}
+     */
+    getLogger(){
+        return this.logger;
     }
 
     /**
