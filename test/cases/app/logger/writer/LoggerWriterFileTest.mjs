@@ -7,7 +7,7 @@ describe('LoggerWriterFile', function() {
 
     const _testcaseLogFilepath = "R:/TEMP/TEMP_LOG_CAN_DELETED_" + Math.random() + ".log";
 
-    const _delLogFileAfterTest = 0;
+    const _delLogFileAfterTest = 1;
     
     it('Test setLevel', async function() {
         
