@@ -13,7 +13,7 @@
   "license": "MIT",
   "dependencies": {
     "abort-controller": "^3.0.0",
-    "config": "^3.2.6",
+    "config": "^3.3.8",
     "express": "^4.17.1",
     "image-type": "^4.1.0",
     "memory-cache": "^0.2.0",
